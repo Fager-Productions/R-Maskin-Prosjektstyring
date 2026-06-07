@@ -171,11 +171,11 @@ export const buildProjectMailto = (project: Project, contractor: ContractorProfi
       'OPPSUMMERING',
       `Prosjekt: ${project.name}`,
       `Status: ${project.status}`,
-      `Oppgaver fullfort: ${formatTaskStatus(project)}`,
-      `Innkjop registrert: ${project.purchases.length}`,
+      `Oppgaver fullført: ${formatTaskStatus(project)}`,
+      `Innkjøp registrert: ${project.purchases.length}`,
       `Totalkostnad: ${formatMoney(projectTotalCost(project))}`,
       '',
-      'UTFORENDE',
+      'UTFØRENDE',
       `Firma: ${contractor.name}`,
       `Adresse: ${formatContractorAddress(contractor)}`,
       `Telefon: ${contractor.phone || '-'}`,
@@ -194,7 +194,7 @@ export const buildProjectMailto = (project: Project, contractor: ContractorProfi
       'OPPGAVER OG FRISTER',
       taskLines || 'Ingen oppgaver registrert.',
       '',
-      'INNKJOP OG UTLEGG',
+      'INNKJØP OG UTLEGG',
       purchaseLines || 'Ingen innkjøp registrert.',
     ].join('\n'),
   )
@@ -253,11 +253,11 @@ export const downloadProjectPdf = (project: Project, contractor: ContractorProfi
 
   section('Oppsummering')
   line(`Status: ${project.status}`)
-  line(`Oppgaver fullfort: ${formatTaskStatus(project)}`)
-  line(`Registrerte innkjop: ${project.purchases.length}`)
+  line(`Oppgaver fullført: ${formatTaskStatus(project)}`)
+  line(`Registrerte innkjøp: ${project.purchases.length}`)
   line(`Totalkostnad: ${formatMoney(projectTotalCost(project))}`, { bold: true })
 
-  section('Utforende')
+  section('Utførende')
   line(`Firma: ${contractor.name}`)
   line(`Adresse: ${contractor.addressLine1}`)
   if (contractor.addressLine2) {
@@ -292,7 +292,7 @@ export const downloadProjectPdf = (project: Project, contractor: ContractorProfi
     }
   })
 
-  section('Innkjop og utlegg')
+  section('Innkjøp og utlegg')
   if (project.purchases.length === 0) {
     line('Ingen innkjøp registrert.')
   }

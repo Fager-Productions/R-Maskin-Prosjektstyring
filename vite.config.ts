@@ -12,7 +12,7 @@ export default defineConfig({
       manifest: {
         name: 'R-Maskin Prosjektstyring',
         short_name: 'R-Maskin',
-        description: 'Offline prosjektstyring for entreprenorprosjekter.',
+        description: 'Offline prosjektstyring for entreprenørprosjekter.',
         theme_color: '#114b5f',
         background_color: '#f3efe6',
         display: 'standalone',
