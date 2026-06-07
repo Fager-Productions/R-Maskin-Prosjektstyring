@@ -61,6 +61,10 @@ type BeforeInstallPromptEvent = Event & {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>
 }
 
+type StandaloneNavigator = Navigator & {
+  standalone?: boolean
+}
+
 type UiPrefs = {
   showAppDescription: boolean
   showProjectsTab: boolean
@@ -70,6 +74,13 @@ type UiPrefs = {
 }
 
 const initialState = loadState()
+
+const isRunningStandalone = () => {
+  return (
+    window.matchMedia('(display-mode: standalone)').matches ||
+    (window.navigator as StandaloneNavigator).standalone === true
+  )
+}
 
 const loadBackupMeta = (): BackupMeta => {
   try {
@@ -246,6 +257,7 @@ function App() {
   const [receiptBundleMessage, setReceiptBundleMessage] = useState('')
   const [installPromptEvent, setInstallPromptEvent] = useState<BeforeInstallPromptEvent | null>(null)
   const [installMessage, setInstallMessage] = useState('')
+  const [isInstalledApp, setIsInstalledApp] = useState(() => isRunningStandalone())
   const [taskForm, setTaskForm] = useState({
     title: '',
     description: '',
@@ -330,21 +342,36 @@ function App() {
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (event: Event) => {
+      if (isRunningStandalone()) {
+        return
+      }
       event.preventDefault()
       setInstallPromptEvent(event as BeforeInstallPromptEvent)
     }
 
     const handleAppInstalled = () => {
+      setIsInstalledApp(true)
       setInstallPromptEvent(null)
-      setInstallMessage('Appen er installert på enheten.')
+      setInstallMessage('')
+    }
+
+    const mediaQuery = window.matchMedia('(display-mode: standalone)')
+    const handleDisplayModeChange = () => {
+      if (mediaQuery.matches) {
+        setIsInstalledApp(true)
+        setInstallPromptEvent(null)
+        setInstallMessage('')
+      }
     }
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
     window.addEventListener('appinstalled', handleAppInstalled)
+    mediaQuery.addEventListener('change', handleDisplayModeChange)
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
       window.removeEventListener('appinstalled', handleAppInstalled)
+      mediaQuery.removeEventListener('change', handleDisplayModeChange)
     }
   }, [])
 
@@ -728,12 +755,14 @@ function App() {
             <img className="hero-brand__logo" src={logoImage} alt="R-Maskin AS logo" />
           </div>
           <h1 className="app-title">Prosjektstyring</h1>
-          <div className="install-box">
-            <button type="button" className="secondary" onClick={onInstallApp}>
-              Installer app
-            </button>
-            {installMessage && <p className="install-message">{installMessage}</p>}
-          </div>
+          {!isInstalledApp && (
+            <div className="install-box">
+              <button type="button" className="secondary" onClick={onInstallApp}>
+                Installer app
+              </button>
+              {installMessage && <p className="install-message">{installMessage}</p>}
+            </div>
+          )}
           {needsBackupReminder && (
             <div className="backup-reminder">
               Husk å ta full backup. Det er mer enn {BACKUP_REMINDER_DAYS} dager siden sist eksport.

@@ -587,12 +587,15 @@ button.secondary:hover {
   min-width: 0;
 }
 
-.list li label input[type='checkbox'] {
+.list li input[type='checkbox'] {
   width: 28px;
   min-width: 28px;
   height: 28px;
   min-height: 28px;
+  padding: 0;
   margin-top: 0.15rem;
+  border-radius: 6px;
+  flex-shrink: 0;
   accent-color: var(--accent);
 }
 
@@ -857,11 +860,12 @@ button.secondary:hover {
     padding: 1rem;
   }
 
-  .list li label input[type='checkbox'] {
+  .list li input[type='checkbox'] {
     width: 26px;
     min-width: 26px;
     height: 26px;
     min-height: 26px;
+    padding: 0;
     margin-top: 0.2rem;
   }
 
