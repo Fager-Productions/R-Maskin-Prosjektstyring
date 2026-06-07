@@ -493,6 +493,20 @@ button.secondary:hover {
   margin-top: 0.15rem;
 }
 
+.task-check-action {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.55rem 0.75rem;
+  background: #f9f5eb;
+  color: var(--text);
+  min-height: 46px;
+  align-items: center;
+}
+
+.task-check-action input {
+  margin-top: 0;
+}
+
 .report-attachments-toggle {
   border: 1px dashed var(--line);
   border-radius: 10px;
@@ -891,6 +905,11 @@ button.secondary:hover {
 
   .item-actions {
     display: grid;
+  }
+
+  .task-check-action {
+    width: 100%;
+    justify-content: flex-start;
   }
 
   .purchase-card {

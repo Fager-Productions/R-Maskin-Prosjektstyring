@@ -1560,18 +1560,23 @@ function App() {
                               : 'task-row'
                           }
                         >
-                          <input
-                            type="checkbox"
-                            checked={Boolean(task.completedAt)}
-                            onChange={() => {
-                              commit(toggleTaskDone(state, selectedProject.id, task.id))
-                              setExpandedCompletedTaskIds((prev) => prev.filter((id) => id !== task.id))
-                            }}
-                          />
                           <div className="task-content">
                             <strong>{task.title}</strong>
                             {task.completedAt && !expandedCompletedTaskIds.includes(task.id) && (
                               <div className="item-actions item-actions--compact">
+                                <label className="checkbox-row task-check-action">
+                                  <input
+                                    type="checkbox"
+                                    checked={Boolean(task.completedAt)}
+                                    onChange={() => {
+                                      commit(toggleTaskDone(state, selectedProject.id, task.id))
+                                      setExpandedCompletedTaskIds((prev) =>
+                                        prev.filter((id) => id !== task.id),
+                                      )
+                                    }}
+                                  />
+                                  Ferdig
+                                </label>
                                 <button
                                   type="button"
                                   className="secondary"
@@ -1593,6 +1598,19 @@ function App() {
                                     : 'Ikke ferdigstilt'}
                                 </small>
                                 <div className="item-actions">
+                                  <label className="checkbox-row task-check-action">
+                                    <input
+                                      type="checkbox"
+                                      checked={Boolean(task.completedAt)}
+                                      onChange={() => {
+                                        commit(toggleTaskDone(state, selectedProject.id, task.id))
+                                        setExpandedCompletedTaskIds((prev) =>
+                                          prev.filter((id) => id !== task.id),
+                                        )
+                                      }}
+                                    />
+                                    Ferdig
+                                  </label>
                                   {task.completedAt && (
                                     <button
                                       type="button"
@@ -1623,7 +1641,11 @@ function App() {
                                   <button
                                     type="button"
                                     className="danger"
-                                    onClick={() => commit(deleteTask(state, selectedProject.id, task.id))}
+                                    onClick={() => {
+                                      if (window.confirm('Vil du slette denne oppgaven?')) {
+                                        commit(deleteTask(state, selectedProject.id, task.id))
+                                      }
+                                    }}
                                   >
                                     Slett
                                   </button>
@@ -1844,7 +1866,11 @@ function App() {
                             <button
                               type="button"
                               className="danger"
-                              onClick={() => commit(deletePurchase(state, selectedProject.id, purchase.id))}
+                              onClick={() => {
+                                if (window.confirm('Vil du slette dette innkjøpet?')) {
+                                  commit(deletePurchase(state, selectedProject.id, purchase.id))
+                                }
+                              }}
                             >
                               Slett
                             </button>
