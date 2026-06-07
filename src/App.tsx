@@ -56,6 +56,11 @@ type BackupMeta = {
   history: BackupMetaItem[]
 }
 
+type BeforeInstallPromptEvent = Event & {
+  prompt: () => Promise<void>
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>
+}
+
 type UiPrefs = {
   showAppDescription: boolean
   showProjectsTab: boolean
@@ -239,6 +244,8 @@ function App() {
   const [showActiveProjectTab, setShowActiveProjectTab] = useState(initialUiPrefs.showActiveProjectTab)
   const [includeReceiptBundle, setIncludeReceiptBundle] = useState(false)
   const [receiptBundleMessage, setReceiptBundleMessage] = useState('')
+  const [installPromptEvent, setInstallPromptEvent] = useState<BeforeInstallPromptEvent | null>(null)
+  const [installMessage, setInstallMessage] = useState('')
   const [taskForm, setTaskForm] = useState({
     title: '',
     description: '',
@@ -320,6 +327,26 @@ function App() {
       } satisfies UiPrefs),
     )
   }, [showActiveProjectTab, showAppDescription, showProjectsTab, showPurchasesTab, showTasksTab])
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (event: Event) => {
+      event.preventDefault()
+      setInstallPromptEvent(event as BeforeInstallPromptEvent)
+    }
+
+    const handleAppInstalled = () => {
+      setInstallPromptEvent(null)
+      setInstallMessage('Appen er installert på enheten.')
+    }
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+    window.addEventListener('appinstalled', handleAppInstalled)
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+      window.removeEventListener('appinstalled', handleAppInstalled)
+    }
+  }, [])
 
   const commit = (nextState: AppState) => {
     setState(nextState)
@@ -677,6 +704,22 @@ function App() {
     window.location.href = buildProjectMailto(selectedProject, state.contractor)
   }
 
+  const onInstallApp = async () => {
+    if (!installPromptEvent) {
+      setInstallMessage('Bruk nettleserens meny og velg "Installer app" eller "Legg til på hjemskjerm".')
+      return
+    }
+
+    await installPromptEvent.prompt()
+    const choiceResult = await installPromptEvent.userChoice
+    if (choiceResult.outcome === 'accepted') {
+      setInstallMessage('Installering startet. Appen blir tilgjengelig fra hjemskjerm/programmer.')
+    } else {
+      setInstallMessage('Installering ble avbrutt.')
+    }
+    setInstallPromptEvent(null)
+  }
+
   return (
     <main className="layout">
       <header className="topbar">
@@ -685,6 +728,12 @@ function App() {
             <img className="hero-brand__logo" src={logoImage} alt="R-Maskin AS logo" />
           </div>
           <h1 className="app-title">Prosjektstyring</h1>
+          <div className="install-box">
+            <button type="button" className="secondary" onClick={onInstallApp}>
+              Installer app
+            </button>
+            {installMessage && <p className="install-message">{installMessage}</p>}
+          </div>
           {needsBackupReminder && (
             <div className="backup-reminder">
               Husk å ta full backup. Det er mer enn {BACKUP_REMINDER_DAYS} dager siden sist eksport.
